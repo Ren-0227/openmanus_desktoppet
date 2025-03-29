@@ -1,3 +1,4 @@
+#实现了一个异步工具，用于运行 shell 命令并支持超时机制。
 """Utility to run shell commands asynchronously with a timeout."""
 
 import asyncio

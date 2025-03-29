@@ -1,3 +1,4 @@
+#用于指导一个自动化编程代理（SWEAgent）在命令行环境中执行任务
 SYSTEM_PROMPT = """SETTING: You are an autonomous programmer, and you're working directly in the command line with a special interface.
 
 The special interface consists of a file editor that shows you {{WINDOW}} lines of a file at a time.
@@ -20,7 +21,7 @@ Remember, you should always include a _SINGLE_ tool call/function call and then 
 If you'd like to issue two commands at once, PLEASE DO NOT DO THAT! Please instead first submit just the first tool call, and then after receiving a response you'll be able to issue the second tool call.
 Note that the environment does NOT support interactive session commands (e.g. python, vim), so please do not invoke them.
 """
-
+#定义了代理在每一步操作后的响应格式。
 NEXT_STEP_TEMPLATE = """{{observation}}
 (Open file: {{open_file}})
 (Current directory: {{working_dir}})

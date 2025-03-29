@@ -16,7 +16,7 @@ from app.schema import Message
 
 
 class LLM:
-    _instances: Dict[str, "LLM"] = {}
+    _instances: Dict[str, "LLM"] = {}#单例模式，确保每个配置名称（config_name）只创建一个 LLM 实例。
 
     def __new__(
         cls, config_name: str = "default", llm_config: Optional[LLMSettings] = None
@@ -50,7 +50,7 @@ class LLM:
                 self.client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
 
     @staticmethod
-    def format_messages(messages: List[Union[dict, Message]]) -> List[dict]:
+    def format_messages(messages: List[Union[dict, Message]]) -> List[dict]:#消息格式化
         """
         Format messages for LLM by converting them to OpenAI message format.
 
@@ -101,7 +101,7 @@ class LLM:
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6),
     )
-    async def ask(
+    async def ask(  #​异步请求
         self,
         messages: List[Union[dict, Message]],
         system_msgs: Optional[List[Union[dict, Message]]] = None,
@@ -181,7 +181,7 @@ class LLM:
         wait=wait_random_exponential(min=1, max=60),
         stop=stop_after_attempt(6),
     )
-    async def ask_tool(
+    async def ask_tool(     #工具调用
         self,
         messages: List[Union[dict, Message]],
         system_msgs: Optional[List[Union[dict, Message]]] = None,

@@ -1,10 +1,11 @@
+#用于管理和执行多个工具
 """Collection classes for managing multiple tools."""
 from typing import Any, Dict, List
 
 from app.exceptions import ToolError
 from app.tool.base import BaseTool, ToolFailure, ToolResult
 
-
+#用于管理和执行多个工具
 class ToolCollection:
     """A collection of defined tools."""
 

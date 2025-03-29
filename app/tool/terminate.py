@@ -1,3 +1,4 @@
+#实现了一个 Terminate 工具类，用于终止当前的交互或任务。
 from app.tool.base import BaseTool
 
 

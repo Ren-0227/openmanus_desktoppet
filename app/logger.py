@@ -8,7 +8,7 @@ from app.config import PROJECT_ROOT
 
 _print_level = "INFO"
 
-
+#提供灵活的日志配置，允许在运行时动态调整日志级别和输出目标。
 def define_log_level(print_level="INFO", logfile_level="DEBUG", name: str = None):
     """Adjust the log level to above level"""
     global _print_level

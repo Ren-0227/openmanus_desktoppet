@@ -1,3 +1,4 @@
+#浏览器操作工具
 import asyncio
 import json
 from typing import Optional
@@ -100,7 +101,8 @@ class BrowserUseTool(BaseTool):
         if not v:
             raise ValueError("Parameters cannot be empty")
         return v
-
+    
+    #浏览器初始化
     async def _ensure_browser_initialized(self) -> BrowserContext:
         """Ensure browser and context are initialized."""
         if self.browser is None:
@@ -110,6 +112,7 @@ class BrowserUseTool(BaseTool):
             self.dom_service = DomService(await self.context.get_current_page())
         return self.context
 
+    #执行浏览器操作
     async def execute(
         self,
         action: str,
@@ -171,7 +174,7 @@ class BrowserUseTool(BaseTool):
                     return ToolResult(
                         output=f"Input '{text}' into element at index {index}"
                     )
-
+                #截图
                 elif action == "screenshot":
                     screenshot = await context.take_screenshot(full_page=True)
                     return ToolResult(
@@ -193,7 +196,7 @@ class BrowserUseTool(BaseTool):
                         "document.querySelectorAll('a[href]').forEach((elem) => {if (elem.innerText) {console.log(elem.innerText, elem.href)}})"
                     )
                     return ToolResult(output=links)
-
+                #执行 JavaScript
                 elif action == "execute_js":
                     if not script:
                         return ToolResult(

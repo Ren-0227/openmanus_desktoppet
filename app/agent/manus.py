@@ -1,7 +1,7 @@
-from pydantic import Field
+from pydantic import Field#用于定义字段的元数据。
 
 from app.agent.toolcall import ToolCallAgent
-from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
+from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT#提示词模板
 from app.tool import Terminate, ToolCollection
 from app.tool.browser_use_tool import BrowserUseTool
 from app.tool.file_saver import FileSaver
@@ -27,7 +27,7 @@ class Manus(ToolCallAgent):
     next_step_prompt: str = NEXT_STEP_PROMPT
 
     # Add general-purpose tools to the tool collection
-    available_tools: ToolCollection = Field(
+    available_tools: ToolCollection = Field(   #定义可用工具
         default_factory=lambda: ToolCollection(
             PythonExecute(), GoogleSearch(), BrowserUseTool(), FileSaver(), Terminate()
         )

@@ -1,3 +1,4 @@
+#实现操作文件
 from collections import defaultdict
 from pathlib import Path
 from typing import Literal, get_args
@@ -157,7 +158,7 @@ class StrReplaceEditor(BaseTool):
                 raise ToolError(
                     f"The path {path} is a directory and only the `view` command can be used on directories"
                 )
-
+    #查看字符串功能
     async def view(self, path: Path, view_range: list[int] | None = None):
         """Implement the view command"""
         if path.is_dir():
@@ -252,7 +253,7 @@ class StrReplaceEditor(BaseTool):
         success_msg += "Review the changes and make sure they are as expected. Edit the file again if necessary."
 
         return CLIResult(output=success_msg)
-
+    #插入内容方法
     def insert(self, path: Path, insert_line: int, new_str: str):
         """Implement the insert command, which inserts new_str at the specified line in the file content."""
         file_text = self.read_file(path).expandtabs()
@@ -291,7 +292,7 @@ class StrReplaceEditor(BaseTool):
         )
         success_msg += "Review the changes and make sure they are as expected (correct indentation, no duplicate lines, etc). Edit the file again if necessary."
         return CLIResult(output=success_msg)
-
+    #撤销编辑方法
     def undo_edit(self, path: Path):
         """Implement the undo_edit command."""
         if not self._file_history[path]:
@@ -303,7 +304,7 @@ class StrReplaceEditor(BaseTool):
         return CLIResult(
             output=f"Last edit to {path} undone successfully. {self._make_output(old_text, str(path))}"
         )
-
+    #文件读写方法
     def read_file(self, path: Path):
         """Read the content of a file from a given path; raise a ToolError if an error occurs."""
         try:

@@ -5,7 +5,7 @@ from typing import Dict
 
 from pydantic import BaseModel, Field
 
-
+#辅助函数和常量
 def get_project_root() -> Path:
     """Get the project root directory"""
     return Path(__file__).resolve().parent.parent
@@ -14,7 +14,7 @@ def get_project_root() -> Path:
 PROJECT_ROOT = get_project_root()
 WORKSPACE_ROOT = PROJECT_ROOT / "workspace"
 
-
+#配置模型定义
 class LLMSettings(BaseModel):
     model: str = Field(..., description="Model name")
     base_url: str = Field(..., description="API base URL")
@@ -28,7 +28,7 @@ class LLMSettings(BaseModel):
 class AppConfig(BaseModel):
     llm: Dict[str, LLMSettings]
 
-
+#实现线程安全的单例模式。
 class Config:
     _instance = None
     _lock = threading.Lock()
@@ -40,7 +40,7 @@ class Config:
                 if cls._instance is None:
                     cls._instance = super().__new__(cls)
         return cls._instance
-
+    #配置加载逻辑
     def __init__(self):
         if not self._initialized:
             with self._lock:
@@ -48,7 +48,7 @@ class Config:
                     self._config = None
                     self._load_initial_config()
                     self._initialized = True
-
+    #配置文件路径获取
     @staticmethod
     def _get_config_path() -> Path:
         root = PROJECT_ROOT
@@ -59,12 +59,12 @@ class Config:
         if example_path.exists():
             return example_path
         raise FileNotFoundError("No configuration file found in config directory")
-
+    #配置加载与解析
     def _load_config(self) -> dict:
         config_path = self._get_config_path()
         with config_path.open("rb") as f:
             return tomllib.load(f)
-
+    #配置合并逻辑
     def _load_initial_config(self):
         raw_config = self._load_config()
         base_llm = raw_config.get("llm", {})
@@ -93,7 +93,7 @@ class Config:
         }
 
         self._config = AppConfig(**config_dict)
-
+    #配置访问接口
     @property
     def llm(self) -> Dict[str, LLMSettings]:
         return self._config.llm

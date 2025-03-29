@@ -28,7 +28,7 @@ class CreateChatCompletion(BaseTool):
         super().__init__()
         self.response_type = response_type
         self.parameters = self._build_parameters()
-
+    #根据 response_type 动态构建 JSON Schema。
     def _build_parameters(self) -> dict:
         """Build parameters schema based on response type."""
         if self.response_type == str:
@@ -54,7 +54,7 @@ class CreateChatCompletion(BaseTool):
             }
 
         return self._create_type_schema(self.response_type)
-
+    #创建类型模式，根据类型提示（type_hint）动态创建 JSON Schema
     def _create_type_schema(self, type_hint: Type) -> dict:
         """Create a JSON schema for the given type."""
         origin = get_origin(type_hint)
@@ -106,7 +106,7 @@ class CreateChatCompletion(BaseTool):
             return self._create_union_schema(args)
 
         return self._build_parameters()
-
+    #获取类型信息，获取单个类型的 JSON Schema 信息。
     def _get_type_info(self, type_hint: Type) -> dict:
         """Get type information for a single type."""
         if isinstance(type_hint, type) and issubclass(type_hint, BaseModel):
@@ -116,7 +116,7 @@ class CreateChatCompletion(BaseTool):
             "type": self.type_mapping.get(type_hint, "string"),
             "description": f"Value of type {getattr(type_hint, '__name__', 'any')}",
         }
-
+    #创建联合类型模式，为联合类型（Union）创建 JSON Schema。
     def _create_union_schema(self, types: tuple) -> dict:
         """Create schema for Union types."""
         return {
@@ -126,7 +126,7 @@ class CreateChatCompletion(BaseTool):
             },
             "required": self.required,
         }
-
+    #执行方法，执行聊天补全操作，并根据 response_type 转换响应数据。
     async def execute(self, required: list | None = None, **kwargs) -> Any:
         """Execute the chat completion with type conversion.
 

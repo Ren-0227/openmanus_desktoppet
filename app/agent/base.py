@@ -20,33 +20,33 @@ class BaseAgent(BaseModel, ABC):
     name: str = Field(..., description="Unique name of the agent")
     description: Optional[str] = Field(None, description="Optional agent description")
 
-    # Prompts
-    system_prompt: Optional[str] = Field(
+    # Prompts                                     定义系统提示词和下一步提示词
+    system_prompt: Optional[str] = Field(          #用于初始化LLM的系统级指令。
         None, description="System-level instruction prompt"
     )
-    next_step_prompt: Optional[str] = Field(
+    next_step_prompt: Optional[str] = Field(       #用于指导下一步动作。
         None, description="Prompt for determining next action"
     )
 
-    # Dependencies
-    llm: LLM = Field(default_factory=LLM, description="Language model instance")
-    memory: Memory = Field(default_factory=Memory, description="Agent's memory store")
-    state: AgentState = Field(
+    # Dependencies                              定义智能体的依赖
+    llm: LLM = Field(default_factory=LLM, description="Language model instance")  #语言模型实例
+    memory: Memory = Field(default_factory=Memory, description="Agent's memory store")#记忆存储
+    state: AgentState = Field(                                                #状态
         default=AgentState.IDLE, description="Current agent state"
     )
 
     # Execution control
-    max_steps: int = Field(default=10, description="Maximum steps before termination")
-    current_step: int = Field(default=0, description="Current step in execution")
+    max_steps: int = Field(default=10, description="Maximum steps before termination")#最大执行步数
+    current_step: int = Field(default=0, description="Current step in execution")   #当前执行步数。
 
     duplicate_threshold: int = 2
 
     class Config:
-        arbitrary_types_allowed = True
-        extra = "allow"  # Allow extra fields for flexibility in subclasses
+        arbitrary_types_allowed = True         #允许任意类型字段
+        extra = "allow"  # Allow extra fields for flexibility in subclasses允许子类添加额外字段。
 
     @model_validator(mode="after")
-    def initialize_agent(self) -> "BaseAgent":
+    def initialize_agent(self) -> "BaseAgent": #初始化智能体依赖。
         """Initialize agent with default settings if not provided."""
         if self.llm is None or not isinstance(self.llm, LLM):
             self.llm = LLM(config_name=self.name.lower())
@@ -55,7 +55,7 @@ class BaseAgent(BaseModel, ABC):
         return self
 
     @asynccontextmanager
-    async def state_context(self, new_state: AgentState):
+    async def state_context(self, new_state: AgentState):  #确保状态切换安全
         """Context manager for safe agent state transitions.
 
         Args:
@@ -80,7 +80,7 @@ class BaseAgent(BaseModel, ABC):
         finally:
             self.state = previous_state  # Revert to previous state
 
-    def update_memory(
+    def update_memory(         #向记忆中添加消息
         self,
         role: Literal["user", "system", "assistant", "tool"],
         content: str,
@@ -110,7 +110,7 @@ class BaseAgent(BaseModel, ABC):
         msg = msg_factory(content, **kwargs) if role == "tool" else msg_factory(content)
         self.memory.add_message(msg)
 
-    async def run(self, request: Optional[str] = None) -> str:
+    async def run(self, request: Optional[str] = None) -> str:#向记忆中添加消息
         """Execute the agent's main loop asynchronously.
 
         Args:
@@ -151,12 +151,12 @@ class BaseAgent(BaseModel, ABC):
         return "\n".join(results) if results else "No steps executed"
 
     @abstractmethod
-    async def step(self) -> str:
+    async def step(self) -> str:#定义智能体的单步执行逻辑
         """Execute a single step in the agent's workflow.
 
         Must be implemented by subclasses to define specific behavior.
         """
-
+#卡死检测和处理，通过检测重复消息判断是否卡死。添加提示词引导模型改变策略。
     def handle_stuck_state(self):
         """Handle stuck state by adding a prompt to change strategy"""
         stuck_prompt = "\
@@ -183,7 +183,7 @@ class BaseAgent(BaseModel, ABC):
         return duplicate_count >= self.duplicate_threshold
 
     @property
-    def messages(self) -> List[Message]:
+    def messages(self) -> List[Message]:#能提供记忆的读写接口，通过属性封装记忆存储
         """Retrieve a list of messages from the agent's memory."""
         return self.memory.messages
 

@@ -1,3 +1,4 @@
+#用于通过 Google 搜索获取与查询相关的链接列表。
 import asyncio
 from typing import List
 

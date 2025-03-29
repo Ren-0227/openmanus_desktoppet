@@ -1,0 +1,12 @@
+[llm]
+model = "Qwen/Qwen2.5-7B-Instruct"
+base_url = "https://api.siliconflow.cn/v1"
+api_key = "sk-llnxhmofdokknbydbichgtsbjvrikwyidgrfyoweqsmnmcym"
+max_tokens = 4096
+temperature = 0.0
+api_version="AZURE API VERSION" #"2024-08-01-preview"
+
+[llm.vision]
+model = "Pro/Qwen/Qwen2.5-7B-Instruct"
+base_url = "https://api.siliconflow.cn/v1"
+api_key = "sk-llnxhmofdokknbydbichgtsbjvrikwyidgrfyoweqsmnmcym"

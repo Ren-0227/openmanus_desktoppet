@@ -4,7 +4,7 @@ from app.agent.base import BaseAgent
 from app.flow.base import BaseFlow, FlowType
 from app.flow.planning import PlanningFlow
 
-
+#提供一个统一的接口，用于根据不同的流程类型（如规划、执行等）创建对应的流程实例。
 class FlowFactory:
     """Factory for creating different types of flows with support for multiple agents"""
 
@@ -22,4 +22,4 @@ class FlowFactory:
         if not flow_class:
             raise ValueError(f"Unknown flow type: {flow_type}")
 
-        return flow_class(agents, **kwargs)
+        return flow_class(agents, **kwargs)#使用获取到的流程类 flow_class 创建流程实例。

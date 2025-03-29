@@ -1,3 +1,4 @@
+#用于安全地执行 Python 代码字符串，并提供超时机制
 import threading
 from typing import Dict
 
@@ -19,7 +20,7 @@ class PythonExecute(BaseTool):
         },
         "required": ["code"],
     }
-
+    #定义了 execute 方法，用于执行 Python 代码字符串。
     async def execute(
         self,
         code: str,
@@ -56,7 +57,7 @@ class PythonExecute(BaseTool):
             except Exception as e:
                 result["observation"] = str(e)
                 result["success"] = False
-
+        #线程管理和超时机制
         thread = threading.Thread(target=run_code)
         thread.start()
         thread.join(timeout)

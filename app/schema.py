@@ -3,7 +3,7 @@ from typing import Any, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
-
+#定义代理的执行状态
 class AgentState(str, Enum):
     """Agent execution states"""
 
@@ -12,12 +12,12 @@ class AgentState(str, Enum):
     FINISHED = "FINISHED"
     ERROR = "ERROR"
 
-
+#定义工具调用的函数
 class Function(BaseModel):
     name: str
     arguments: str
 
-
+#表示消息中的工具调用，包含工具调用的唯一标识（id）、类型（type）和函数信息（function）。
 class ToolCall(BaseModel):
     """Represents a tool/function call in a message"""
 
@@ -25,7 +25,7 @@ class ToolCall(BaseModel):
     type: str = "function"
     function: Function
 
-
+#定义对话中的消息，支持多种角色（系统、用户、助手、工具）。
 class Message(BaseModel):
     """Represents a chat message in the conversation"""
 
@@ -54,7 +54,8 @@ class Message(BaseModel):
             raise TypeError(
                 f"unsupported operand type(s) for +: '{type(other).__name__}' and '{type(self).__name__}'"
             )
-
+        
+    #将消息对象转换为字典格式，便于存储或传输。
     def to_dict(self) -> dict:
         """Convert message to dictionary format"""
         message = {"role": self.role}
@@ -68,6 +69,7 @@ class Message(BaseModel):
             message["tool_call_id"] = self.tool_call_id
         return message
 
+    #提供创建不同角色消息的工厂方法，简化消息的创建过程。
     @classmethod
     def user_message(cls, content: str) -> "Message":
         """Create a user message"""
@@ -106,7 +108,7 @@ class Message(BaseModel):
             role="assistant", content=content, tool_calls=formatted_calls, **kwargs
         )
 
-
+# 消息存储
 class Memory(BaseModel):
     messages: List[Message] = Field(default_factory=list)
     max_messages: int = Field(default=100)

@@ -1,0 +1,13 @@
+{
+    "name": "my-desktop-pet",
+    "version": "1.0.0",
+    "main": "main.js",
+    "scripts": {
+      "start": "electron .",
+      "start-server": "python websocket_server.py"
+    },
+    "dependencies": {
+      "electron": "^22.3.27",
+      "ws": "^8.18.1"
+    }
+  }

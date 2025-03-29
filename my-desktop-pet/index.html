@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>桌面宠物</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/handtrackjs@0.1.0/dist/handtrack.min.js"></script>
+</head>
+<body>
+  <div class="pet-container">
+      <div class="notification">喵~</div>
+      <div class="pixel-cat">
+          <!-- 青椒猫咪 -->
+          <div class="pepper-cat active">
+              <div class="pepper"></div>
+              <div class="pepper-stem"></div>
+              <div class="cat-face">
+                  <div class="cat-ear-left"></div>
+                  <div class="cat-ear-right"></div>
+                  <div class="cat-eye-left"></div>
+                  <div class="cat-eye-right"></div>
+                  <div class="cat-nose"></div>
+                  <div class="cat-mouth"></div>
+                  <div class="cat-whisker-left1"></div>
+                  <div class="cat-whisker-left2"></div>
+                  <div class="cat-whisker-left3"></div>
+                  <div class="cat-whisker-right1"></div>
+                  <div class="cat-whisker-right2"></div>
+                  <div class="cat-whisker-right3"></div>
+              </div>
+              <div class="cat-paw-left"></div>
+              <div class="cat-paw-right"></div>
+              <div class="cat-tail"></div>
+          </div>
+          
+          <!-- 豆干猫咪 -->
+          <div class="tofu-cat">
+              <div class="tofu"></div>
+              <div class="cat-face">
+                  <div class="cat-ear-left"></div>
+                  <div class="cat-ear-right"></div>
+                  <div class="cat-eye-left"></div>
+                  <div class="cat-eye-right"></div>
+                  <div class="cat-nose"></div>
+                  <div class="cat-mouth"></div>
+                  <div class="cat-whisker-left1"></div>
+                  <div class="cat-whisker-left2"></div>
+                  <div class="cat-whisker-left3"></div>
+                  <div class="cat-whisker-right1"></div>
+                  <div class="cat-whisker-right2"></div>
+                  <div class="cat-whisker-right3"></div>
+              </div>
+              <div class="cat-paw-left"></div>
+              <div class="cat-paw-right"></div>
+              <div class="cat-tail"></div>
+          </div>
+          
+          <!-- 蓝莓猫咪 -->
+          <div class="blueberry-cat">
+              <div class="blueberry"></div>
+              <div class="blueberry-top"></div>
+              <div class="cat-face">
+                  <div class="cat-ear-left"></div>
+                  <div class="cat-ear-right"></div>
+                  <div class="cat-eye-left"></div>
+                  <div class="cat-eye-right"></div>
+                  <div class="cat-nose"></div>
+                  <div class="cat-mouth"></div>
+                  <div class="cat-whisker-left1"></div>
+                  <div class="cat-whisker-left2"></div>
+                  <div class="cat-whisker-left3"></div>
+                  <div class="cat-whisker-right1"></div>
+                  <div class="cat-whisker-right2"></div>
+                  <div class="cat-whisker-right3"></div>
+              </div>
+              <div class="cat-paw-left"></div>
+              <div class="cat-paw-right"></div>
+              <div class="cat-tail"></div>
+          </div>
+      </div>
+  </div>
+  
+  <div class="control-panel">
+      <button class="close-button">×</button>
+      <div id="status-text">桌面宠物已启动</div>
+      <input type="text" id="message-input" placeholder="输入消息...">
+      <div class="buttons">
+          <button class="send-button" id="send-button">发送</button>
+          <button class="voice-button" id="voice-button">🎤</button>
+          <button class="feed-button" id="feed-button">🍲</button>
+      </div>
+      <div class="voice-status" id="voice-status"></div>
+  </div>
+  
+  <div class="context-menu">
+      <div class="menu-item has-submenu">
+          换装
+          <div class="submenu">
+              <div class="menu-item" data-costume="pepper">青椒猫</div>
+              <div class="menu-item" data-costume="tofu">豆干猫</div>
+              <div class="menu-item" data-costume="blueberry">蓝莓猫</div>
+          </div>
+      </div>
+      <div class="menu-item" id="crazy-mode-toggle">疯狂模式</div>
+  </div>
+  
+  <div class="blur-effect"></div>
+  <div class="particles-container"></div>
+  
+  <script src="renderer.js"></script>
+</body>
+</html>
+

@@ -10,16 +10,16 @@ from app.agent.base import BaseAgent
 class FlowType(str, Enum):
     PLANNING = "planning"
 
-
+#支持多代理的执行流程
 class BaseFlow(BaseModel, ABC):
     """Base class for execution flows supporting multiple agents"""
 
-    agents: Dict[str, BaseAgent]
+    agents: Dict[str, BaseAgent]        #一个字典，存储多个代理（BaseAgent），键为代理的标识符，值为代理实例。
     tools: Optional[List] = None
-    primary_agent_key: Optional[str] = None
+    primary_agent_key: Optional[str] = None#主代理的标识符，用于标识流程中的主要代理。
 
     class Config:
-        arbitrary_types_allowed = True
+        arbitrary_types_allowed = True      #允许 Pydantic 模型中包含任意类型
 
     def __init__(
         self, agents: Union[BaseAgent, List[BaseAgent], Dict[str, BaseAgent]], **data

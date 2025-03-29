@@ -67,11 +67,11 @@ class PlanningFlow(BaseFlow):
             if not self.primary_agent:
                 raise ValueError("No primary agent available")
 
-            # Create initial plan if input provided
+            #创建初始计划
             if input_text:
                 await self._create_initial_plan(input_text)
 
-                # Verify plan was created successfully
+                # 验证计划创建成功
                 if self.active_plan_id not in self.planning_tool.plans:
                     logger.error(
                         f"Plan creation failed. Plan ID {self.active_plan_id} not found in planning tool."
@@ -80,21 +80,21 @@ class PlanningFlow(BaseFlow):
 
             result = ""
             while True:
-                # Get current step to execute
+                # 执行任务步骤
                 self.current_step_index, step_info = await self._get_current_step_info()
 
-                # Exit if no more steps or plan completed
+                # 如果没有更多步骤，调用 _finalize_plan 完成计划。
                 if self.current_step_index is None:
                     result += await self._finalize_plan()
                     break
 
-                # Execute current step with appropriate agent
+                #否则，调用 _execute_step 执行当前步骤
                 step_type = step_info.get("type") if step_info else None
                 executor = self.get_executor(step_type)
                 step_result = await self._execute_step(executor, step_info)
                 result += step_result + "\n"
 
-                # Check if agent wants to terminate
+                # 终止条件
                 if hasattr(executor, "state") and executor.state == AgentState.FINISHED:
                     break
 
@@ -102,12 +102,13 @@ class PlanningFlow(BaseFlow):
         except Exception as e:
             logger.error(f"Error in PlanningFlow: {str(e)}")
             return f"Execution failed: {str(e)}"
-
+    #基于用户输入创建初始计划。
     async def _create_initial_plan(self, request: str) -> None:
+        #定义异步方法 _create_initial_plan，接收用户请求 request 作为输入。
         """Create an initial plan based on the request using the flow's LLM and PlanningTool."""
         logger.info(f"Creating initial plan with ID: {self.active_plan_id}")
 
-        # Create a system message for plan creation
+        # 创建系统消息和用户消息，作为输入传递给语言模型。
         system_message = Message.system_message(
             "You are a planning assistant. Create a concise, actionable plan with clear steps. "
             "Focus on key milestones rather than detailed sub-steps. "
@@ -119,7 +120,7 @@ class PlanningFlow(BaseFlow):
             f"Create a reasonable plan with clear steps to accomplish the task: {request}"
         )
 
-        # Call LLM with PlanningTool
+        # 调用大模型的ask_tool方法生成计划
         response = await self.llm.ask_tool(
             messages=[user_message],
             system_msgs=[system_message],
@@ -127,7 +128,7 @@ class PlanningFlow(BaseFlow):
             tool_choice="required",
         )
 
-        # Process tool calls if present
+        # 调用语言模型的 ask_tool 方法，生成计划。
         if response.tool_calls:
             for tool_call in response.tool_calls:
                 if tool_call.function.name == "planning":
@@ -143,13 +144,14 @@ class PlanningFlow(BaseFlow):
                     # Ensure plan_id is set correctly and execute the tool
                     args["plan_id"] = self.active_plan_id
 
-                    # Execute the tool via ToolCollection instead of directly
+                    #调用 PlanningTool 的 execute 方法执行工具。
                     result = await self.planning_tool.execute(**args)
 
                     logger.info(f"Plan creation result: {str(result)}")
                     return
 
-        # If execution reached here, create a default plan
+        # 如果语言模型未返回有效的工具调用，则创建一个默认计划。默认计划包含以下内容：
+        #标题：基于用户请求生成，截断为前 50 个字符。步骤：固定的三个步骤（分析请求、执行任务、验证结果）。”
         logger.warning("Creating default plan")
 
         # Create default plan using the ToolCollection
@@ -161,7 +163,7 @@ class PlanningFlow(BaseFlow):
                 "steps": ["Analyze request", "Execute task", "Verify results"],
             }
         )
-
+    #解析当前计划，找到第一个未完成的步骤。
     async def _get_current_step_info(self) -> tuple[Optional[int], Optional[dict]]:
         """
         Parse the current plan to identify the first non-completed step's index and info.
@@ -254,7 +256,7 @@ class PlanningFlow(BaseFlow):
         except Exception as e:
             logger.error(f"Error executing step {self.current_step_index}: {e}")
             return f"Error executing step {self.current_step_index}: {str(e)}"
-
+    #
     async def _mark_step_completed(self) -> None:
         """Mark the current step as completed."""
         if self.current_step_index is None:
@@ -285,7 +287,7 @@ class PlanningFlow(BaseFlow):
                 # Update the status
                 step_statuses[self.current_step_index] = PlanStepStatus.COMPLETED.value
                 plan_data["step_statuses"] = step_statuses
-
+    #执行当前步骤。
     async def _get_plan_text(self) -> str:
         """Get the current plan as formatted text."""
         try:
@@ -296,7 +298,7 @@ class PlanningFlow(BaseFlow):
         except Exception as e:
             logger.error(f"Error getting plan: {e}")
             return self._generate_plan_text_from_storage()
-
+    #将当前步骤标记为“已完成”。
     def _generate_plan_text_from_storage(self) -> str:
         """Generate plan text directly from storage if the planning tool fails."""
         try:
@@ -354,7 +356,7 @@ class PlanningFlow(BaseFlow):
         except Exception as e:
             logger.error(f"Error generating plan text from storage: {e}")
             return f"Error: Unable to retrieve plan with ID {self.active_plan_id}"
-
+    #完成计划并生成总结报告
     async def _finalize_plan(self) -> str:
         """Finalize the plan and provide a summary using the flow's LLM directly."""
         plan_text = await self._get_plan_text()
