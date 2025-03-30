@@ -18,6 +18,7 @@ HEARTBEAT_INTERVAL = 30  # 秒
 # 全局连接池（弱引用防止内存泄漏）
 connected_clients = WeakSet()
 
+# 消息类型枚举
 class MessageType(Enum):
     PROMPT = "prompt"
     HEARTBEAT = "heartbeat"
@@ -26,6 +27,9 @@ class MessageType(Enum):
     PLAN_STATUS = "plan_status"
     TOOL_EXECUTION = "tool_execution"
     STEP_COMPLETED = "step_completed"
+    PLAN_COMPLETE = "plan_complete"
+    SYSTEM_STATUS = "system_status"
+    CONNECTION_ACK = "connection_ack"
 
 def validate_message(data: dict) -> bool:
     """增强消息验证"""
@@ -55,9 +59,12 @@ async def send_to_frontend(message: dict):
         return
 
     tasks = []
-    for client in connected_clients:
+    # 创建集合的副本进行迭代
+    clients = list(connected_clients)
+    for client in clients:
         try:
-            if client.open:
+            # 使用 state 属性检查连接状态
+            if client.state == websockets.protocol.State.OPEN:
                 full_message = {
                     **message,
                     "timestamp": time.time(),
@@ -103,7 +110,7 @@ async def agent_run(websocket, prompt: str):
             "traceback": traceback.format_exc()
         })
 
-async def websocket_handler(websocket, path):
+async def websocket_handler(websocket):
     """WebSocket连接处理器"""
     client_id = f"{websocket.remote_address[0]}:{websocket.remote_address[1]}"
     connected_clients.add(websocket)
@@ -156,7 +163,7 @@ async def websocket_handler(websocket, path):
                     "message": f"消息处理失败: {str(e)}"
                 })
 
-    except websockets.exceptions.ConnectionClosedError as e:
+    except websockets.exceptions.ConnectionClosed as e:
         logger.warning(f"连接异常断开: {client_id} (code: {e.code})")
     except Exception as e:
         logger.error(f"连接错误: {str(e)}", exc_info=True)
@@ -178,22 +185,29 @@ async def health_check():
 
 async def main():
     # 启动WebSocket服务器
-    server = await websockets.serve(
+    async with websockets.serve(
         websocket_handler,
         WEBSOCKET_HOST,
         WEBSOCKET_PORT,
         ping_interval=20,
         ping_timeout=10,
-        max_size=2**20  # 1MB消息限制
-    )
-    
-    logger.info(f"🔌 WebSocket服务已启动: ws://{WEBSOCKET_HOST}:{WEBSOCKET_PORT}")
-    
-    # 启动健康检查
-    asyncio.create_task(health_check())
-    
-    # 保持服务运行
-    await server.wait_closed()
+        max_size=2**20,  # 1MB消息限制
+        compression=None,  # 禁用压缩以提高性能
+    ) as server:
+        logger.info(f"🔌 WebSocket服务已启动: ws://{WEBSOCKET_HOST}:{WEBSOCKET_PORT}")
+        
+        # 启动健康检查
+        health_check_task = asyncio.create_task(health_check())
+        
+        try:
+            # 保持服务运行
+            await asyncio.Future()
+        finally:
+            health_check_task.cancel()
+            try:
+                await health_check_task
+            except asyncio.CancelledError:
+                pass
 
 if __name__ == "__main__":
     try:
